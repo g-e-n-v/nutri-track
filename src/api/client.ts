@@ -1,4 +1,5 @@
 import axios from "axios";
+import { redirect } from "react-router-dom";
 
 const client = axios.create({
   baseURL: "http://14.225.211.111:3000/v1/",
@@ -20,7 +21,7 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response.status === 401) {
-      //
+      redirect("/auth");
     }
     return error;
   }
