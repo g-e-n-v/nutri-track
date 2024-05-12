@@ -1,5 +1,5 @@
 import { useApiLogin } from "@/api/hooks/useLogin";
-import { useUserStore } from "@/jotai/user.store";
+import { useUserStore } from "@/stores/user.store";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { LoginForm, ProFormText } from "@ant-design/pro-components";
 import { App, Button, Form, Tabs } from "antd";
@@ -45,10 +45,16 @@ export default function LoginPage() {
           ),
         }}
       >
-        <Tabs centered activeKey={page} onChange={(activeKey) => setPage(activeKey)}>
-          <Tabs.TabPane key={"login"} tab={"Login"} />
-          <Tabs.TabPane key={"register"} tab={"Register"} />
-        </Tabs>
+        <Tabs
+          centered
+          activeKey={page}
+          onChange={(activeKey) => setPage(activeKey)}
+          items={[
+            { key: "login", label: "Login" },
+            { key: "register", label: "Register" },
+          ]}
+        />
+
         {page === "login" && (
           <>
             <ProFormText

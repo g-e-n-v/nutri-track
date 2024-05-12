@@ -1,11 +1,9 @@
 // import { useDeleteApplication } from "@/api/hooks/useDeleteApplication";
 import { useGetApplications } from "@/api/hooks/useGetApplications";
 import { usePutChangeApplicationStatus } from "@/api/hooks/usePutChangeApplicationStatus";
-import { Layout } from "@/components/Layout";
 import { StatusColorMap } from "@/constants/tag-color.constant";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { App, Button, Image, Table, Tag, Tooltip } from "antd";
-import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { omit } from "lodash-es";
 import { useEffect, useState } from "react";
@@ -42,6 +40,7 @@ export default function ApplicationsPage() {
   // });
 
   const { mutateAsync: changeApplicationStatus, isPending } = usePutChangeApplicationStatus({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       message.error(error.response?.data?.message);
     },
@@ -54,7 +53,7 @@ export default function ApplicationsPage() {
   }, [data]);
 
   return (
-    <Layout>
+    <div>
       <Table
         loading={isLoading || isPending}
         dataSource={data?.results}
@@ -78,7 +77,7 @@ export default function ApplicationsPage() {
             dataIndex: "image",
             render: (image: string) => (
               <div className="size-20 bg-gray-200 rounded-md">
-                {image && <Image src={image} alt="image" className="size-20" />}
+                {image && <Image src={image} alt="image" className="size-20" preview={false} />}
               </div>
             ),
           },
@@ -162,6 +161,6 @@ export default function ApplicationsPage() {
         }}
         rowKey={(row) => row.id}
       />
-    </Layout>
+    </div>
   );
 }

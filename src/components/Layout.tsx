@@ -1,4 +1,4 @@
-import { useUserStore } from "@/jotai/user.store";
+import { useUserStore } from "@/stores/user.store";
 import {
   DashboardOutlined,
   FileTextOutlined,

@@ -1,7 +1,5 @@
 import { useGetUsers } from "@/api/hooks/useGetUsers";
-import { Layout } from "@/components/Layout";
-import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Image, Table, Tooltip } from "antd";
+import { Table } from "antd";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -28,7 +26,7 @@ export default function UsersPage() {
   });
 
   return (
-    <Layout>
+    <>
       <Table
         loading={isLoading}
         dataSource={data?.results}
@@ -104,6 +102,6 @@ export default function UsersPage() {
         }}
         rowKey={(row) => row.id}
       />
-    </Layout>
+    </>
   );
 }
