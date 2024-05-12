@@ -1,7 +1,7 @@
 import { useGetMe } from "@/api/hooks/useGetMe";
 import { Layout } from "@/components/Layout";
 import { useUserStore } from "@/stores/user.store";
-import { Spin } from "antd";
+import { Skeleton } from "antd";
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useReadLocalStorage } from "usehooks-ts";
@@ -35,9 +35,9 @@ export default function App() {
 
   return (
     <Layout>
-      <Spin spinning={isLoading}>
+      <Skeleton loading={isLoading}>
         <Outlet />
-      </Spin>
+      </Skeleton>
     </Layout>
   );
 }
