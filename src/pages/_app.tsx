@@ -1,19 +1,33 @@
+import { useGetMe } from "@/api/hooks/useGetMe";
 import { Layout } from "@/components/Layout";
 import { useUserStore } from "@/stores/user.store";
+import { Spin } from "antd";
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useReadLocalStorage } from "usehooks-ts";
 
 export default function App() {
-  const [user] = useUserStore();
+  const [user, setUser] = useUserStore();
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
+  const token = useReadLocalStorage<string>("token");
+  const { data, isLoading, isError } = useGetMe({ enabled: !!token && !user });
+
   useEffect(() => {
-    if (user) return;
+    data && setUser(data);
+  }, [data, setUser]);
+
+  useEffect(() => {
+    isError && navigate("/auth");
+  }, [isError, navigate]);
+
+  useEffect(() => {
+    if (token) return;
 
     navigate("/auth");
-  }, [navigate, user]);
+  }, [navigate, token]);
 
   if (pathname === "/auth") {
     return <Outlet />;
@@ -21,7 +35,9 @@ export default function App() {
 
   return (
     <Layout>
-      <Outlet />
+      <Spin spinning={isLoading}>
+        <Outlet />
+      </Spin>
     </Layout>
   );
 }

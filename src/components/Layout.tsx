@@ -9,6 +9,7 @@ import { PageContainer, ProCard, ProLayout } from "@ant-design/pro-components";
 import { Dropdown } from "antd";
 import { PropsWithChildren } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useLocalStorage } from "usehooks-ts";
 
 const routeProps = {
   route: {
@@ -37,8 +38,15 @@ const routeProps = {
 export function Layout({ children }: PropsWithChildren) {
   const [user] = useUserStore();
 
+  const [_token, _setToken, removeToken] = useLocalStorage<string | null>("token", null);
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  const handleLogout = () => {
+    removeToken();
+    navigate("/auth");
+  };
 
   return (
     <div className="h-screen overflow-auto">
@@ -61,6 +69,7 @@ export function Layout({ children }: PropsWithChildren) {
                       key: "logout",
                       icon: <LogoutOutlined />,
                       label: "Logout",
+                      onClick: handleLogout,
                     },
                   ],
                 }}

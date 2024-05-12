@@ -5,11 +5,13 @@ import { LoginForm, ProFormText } from "@ant-design/pro-components";
 import { App, Button, Form, Tabs } from "antd";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useLocalStorage } from "usehooks-ts";
 
 export default function LoginPage() {
   const [_user, setUser] = useUserStore();
 
   const navigate = useNavigate();
+  const [_token, setToken] = useLocalStorage<string | null>("token", null);
 
   const [form] = Form.useForm();
   const { message } = App.useApp();
@@ -25,7 +27,7 @@ export default function LoginPage() {
     });
     setUser(user);
     const accessToken = tokens.access.token;
-    localStorage.setItem("token", accessToken);
+    setToken(accessToken);
 
     message.success(`Welcome back ${user.name}!`);
     navigate("/");
