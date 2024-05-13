@@ -54,6 +54,10 @@ export default function ApplicationsPage() {
     onError: (error: any) => {
       message.error(error.response?.data?.message);
     },
+    onSuccess: () => {
+      message.success("Change application status success");
+      refetchList();
+    },
   });
 
   useEffect(() => {
@@ -179,7 +183,6 @@ export default function ApplicationsPage() {
                         pathParams: { id: record.id },
                         body: { status: "APPROVED" },
                       });
-                      await refetchList();
                     }}
                   />
                 </Tooltip>
@@ -196,7 +199,6 @@ export default function ApplicationsPage() {
                         pathParams: { id: record.id },
                         body: { status: "REJECTED" },
                       });
-                      await refetchList();
                     }}
                   />
                 </Tooltip>

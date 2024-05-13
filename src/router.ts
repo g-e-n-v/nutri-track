@@ -7,6 +7,7 @@ export type Path =
   | `/`
   | `/applications`
   | `/auth`
+  | `/diet-categories`
   | `/users`
 
 export type Params = {

@@ -2,6 +2,7 @@ import { useUserStore } from "@/stores/user.store";
 import {
   DashboardOutlined,
   FileTextOutlined,
+  FireOutlined,
   LogoutOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
@@ -29,6 +30,11 @@ const routeProps = {
         path: "/users",
         name: "Users",
         icon: <UsergroupAddOutlined />,
+      },
+      {
+        path: "/diet-categories",
+        name: "Diet Categories",
+        icon: <FireOutlined />,
       },
     ],
   },

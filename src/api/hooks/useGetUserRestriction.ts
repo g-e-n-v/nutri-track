@@ -7,32 +7,33 @@ type PathParams = {
 type QueryParams = Record<string, string>;
 type Body = Record<string, string>;
 
-type QueryProps = Partial<{
+type QueryProps = {
   pathParams: PathParams;
-  queryParams: QueryParams;
-  body: Body;
-}>;
+  queryParams?: QueryParams;
+  body?: Body;
+};
 
 type Response = {
   id: number;
-  email: string;
-  name: string;
-  avatar: string;
-  role: string;
-  gender: string;
-  accountType: string;
-  height: number;
-  dob: string;
-  guid: string;
+  userId: number;
+  restrictionId: number;
   createdAt: string;
   updatedAt: string;
+  restriction: {
+    id: number;
+    high: string;
+    low: string;
+    avoid: string;
+    createdAt: string;
+    updatedAt: string;
+  };
 };
 
 type Props = {
   queryProps?: QueryProps;
 } & Omit<UseQueryOptions<Response>, "queryKey" | "queryFn">;
 
-const path = "/users/{id}";
+const path = "/user-diet-restrictions/{id}";
 const queryFn = ({ body, pathParams = { id: NaN }, queryParams = {} }: QueryProps) => {
   const url = Object.entries(pathParams).reduce(
     (url, [key, value]) => url.replace(`{${key}}`, String(value)),
@@ -47,9 +48,11 @@ const queryFn = ({ body, pathParams = { id: NaN }, queryParams = {} }: QueryProp
   }).then((res) => res.data);
 };
 
-const defaultQueryProps: QueryProps = {};
+const defaultQueryProps: QueryProps = {
+  pathParams: { id: NaN },
+};
 
-export function useGetUser({ queryProps = defaultQueryProps, ...props }: Props = {}) {
+export function useGetUserRestriction({ queryProps = defaultQueryProps, ...props }: Props = {}) {
   return useQuery({
     ...props,
     queryKey: [path, queryProps],
