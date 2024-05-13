@@ -1,22 +1,19 @@
 import { useGetUsers } from "@/api/hooks/useGetUsers";
 import { Table } from "antd";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { omit } from "lodash-es";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function UsersPage() {
   const [pagination, setPagination] = useState({
-    limit: 10,
+    limit: 10_000,
     page: 1,
     totalPages: NaN,
     totalResults: NaN,
   });
 
-  const {
-    data,
-    isLoading,
-    // refetch: refetchList,
-  } = useGetUsers({
+  const { data, isLoading } = useGetUsers({
     queryProps: {
       queryParams: {
         limit: pagination.limit,
@@ -24,6 +21,12 @@ export default function UsersPage() {
       },
     },
   });
+
+  useEffect(() => {
+    if (data) {
+      setPagination(omit(data, "results"));
+    }
+  }, [data]);
 
   return (
     <>
@@ -93,12 +96,8 @@ export default function UsersPage() {
           // },
         ]}
         pagination={{
-          pageSize: pagination.limit,
-          current: pagination.page,
+          pageSize: 10,
           total: pagination.totalResults,
-          onChange: (page, _pageSize) => {
-            setPagination((prev) => ({ ...prev, page }));
-          },
         }}
         rowKey={(row) => row.id}
       />

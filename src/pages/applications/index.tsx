@@ -1,9 +1,10 @@
 // import { useDeleteApplication } from "@/api/hooks/useDeleteApplication";
 import { useGetApplications } from "@/api/hooks/useGetApplications";
+import { useGetUser } from "@/api/hooks/useGetUser";
 import { usePutChangeApplicationStatus } from "@/api/hooks/usePutChangeApplicationStatus";
 import { StatusColorMap } from "@/constants/tag-color.constant";
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { App, Button, Image, Table, Tabs, Tag, Tooltip } from "antd";
+import { CheckOutlined, CloseOutlined, EyeOutlined } from "@ant-design/icons";
+import { App, Button, Descriptions, Drawer, Image, Table, Tag, Tooltip } from "antd";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import { omit } from "lodash-es";
@@ -14,7 +15,7 @@ export default function ApplicationsPage() {
   const { message } = App.useApp();
 
   const [pagination, setPagination] = useState({
-    limit: 10,
+    limit: 10_000,
     page: 1,
     totalPages: NaN,
     totalResults: NaN,
@@ -37,12 +38,16 @@ export default function ApplicationsPage() {
     },
   });
 
-  // const { mutateAsync: deleteApplication, isPending } = useDeleteApplication({
-  //   onSuccess: () => {
-  //     refetchList();
-  //     message.success("Deleted Successfully!");
-  //   },
-  // });
+  const [selectedItem, setSelectedItem] = useState<NonNullable<typeof data>["results"][number]>();
+  const { data: owner } = useGetUser({
+    queryProps: { pathParams: { id: Number(selectedItem?.userId) } },
+    enabled: !!selectedItem?.userId,
+  });
+
+  const { data: approver } = useGetUser({
+    queryProps: { pathParams: { id: Number(selectedItem?.approvedById) } },
+    enabled: !!selectedItem?.approvedById,
+  });
 
   const { mutateAsync: changeApplicationStatus, isPending } = usePutChangeApplicationStatus({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,7 +68,12 @@ export default function ApplicationsPage() {
   return (
     <div>
       <Button.Group className="mb-4">
-        <Button className={clsx({ "bg-blue-500 text-white": filter === "ALL" })}>ALL</Button>
+        <Button
+          onClick={() => setFilter("ALL")}
+          className={clsx({ "bg-blue-500 text-white": filter === "ALL" })}
+        >
+          ALL
+        </Button>
         <Button
           onClick={() => setFilter("PENDING")}
           className={clsx("text-amber-500", { "bg-amber-500 text-white": filter === "PENDING" })}
@@ -87,15 +97,15 @@ export default function ApplicationsPage() {
       <Table
         loading={isLoading || isPending}
         dataSource={displayApplications}
-        scroll={{ y: "calc(100vh - 300px)", x: 0 }}
+        scroll={{ y: "calc(100vh - 360px)", x: 0 }}
         columns={[
-          {
-            fixed: "left",
-            width: 60,
-            title: "#",
-            dataIndex: "id",
-            render: (_id, _record, idx) => idx + pagination.limit * (pagination.page - 1),
-          },
+          // {
+          //   fixed: "left",
+          //   width: 60,
+          //   title: "#",
+          //   dataIndex: "id",
+          //   render: (_id, _record, idx) => idx,
+          // },
           {
             fixed: "left",
             width: 60,
@@ -109,7 +119,7 @@ export default function ApplicationsPage() {
             title: "Image",
             dataIndex: "image",
             render: (image: string) => (
-              <div className="size-20 bg-gray-200 rounded-md">
+              <div className="size-20 bg-gray-200 rounded-md overflow-hidden">
                 {image && <Image src={image} alt="image" className="size-20" preview={false} />}
               </div>
             ),
@@ -124,6 +134,11 @@ export default function ApplicationsPage() {
             width: 120,
             title: "Initial Weight",
             dataIndex: "initialWeight",
+          },
+          {
+            width: 140,
+            title: "Target Weight",
+            dataIndex: "targetWeight",
           },
           {
             width: 150,
@@ -148,6 +163,10 @@ export default function ApplicationsPage() {
             title: "Action",
             render: (_, record) => (
               <div className="flex gap-4">
+                <Tooltip title="View Detail">
+                  <Button onClick={() => setSelectedItem(record)} icon={<EyeOutlined />} />
+                </Tooltip>
+
                 <Tooltip title="Approve">
                   <Button
                     type="primary"
@@ -186,15 +205,71 @@ export default function ApplicationsPage() {
           },
         ]}
         pagination={{
-          pageSize: pagination.limit,
-          current: pagination.page,
-          total: pagination.totalResults,
-          onChange: (page, _pageSize) => {
-            setPagination((prev) => ({ ...prev, page }));
-          },
+          pageSize: 10,
+          total: displayApplications?.length,
         }}
         rowKey={(row) => row.id}
       />
+
+      <Drawer open={!!selectedItem} onClose={() => setSelectedItem(undefined)} width={600}>
+        <Descriptions
+          title={
+            <div className="flex items-center gap-2">
+              Application Detail{" "}
+              <Tag color={StatusColorMap[selectedItem?.status ?? ""]}>{selectedItem?.status}</Tag>
+            </div>
+          }
+          layout="vertical"
+          column={3}
+          items={[
+            {
+              // label: "Image",
+              children: (
+                <div className="size-20 bg-gray-200 rounded-md overflow-hidden">
+                  {selectedItem?.image && (
+                    <Image
+                      src={selectedItem.image}
+                      alt="image"
+                      className="size-20"
+                      preview={false}
+                    />
+                  )}
+                </div>
+              ),
+              span: 1,
+            },
+            {
+              span: 2,
+              label: "Description",
+              children: selectedItem?.description ?? "--",
+            },
+            {
+              label: "Initial Weight",
+              children: selectedItem?.initialWeight ?? "--",
+            },
+            {
+              label: "Target Weight",
+              children: selectedItem?.targetWeight ?? "--",
+            },
+            {
+              label: "Note",
+              children: selectedItem?.note ?? "--",
+            },
+            {
+              label: "Owner",
+              children: owner?.name,
+            },
+            {
+              label: "Approver",
+              children: approver?.name,
+            },
+            {
+              label: "Updated At",
+              children: dayjs(selectedItem?.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+            },
+          ]}
+        />
+      </Drawer>
     </div>
   );
 }
