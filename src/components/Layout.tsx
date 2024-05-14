@@ -58,6 +58,7 @@ export function Layout({ children }: PropsWithChildren) {
     <div className="h-screen overflow-auto">
       <ProLayout
         {...routeProps}
+        title="NutriTrack"
         location={{ pathname }}
         menu={{
           collapsedShowGroupTitle: true,

@@ -37,7 +37,7 @@ export default function LoginPage() {
     <div>
       <LoginForm
         form={form}
-        title="Diet Admin"
+        title="NutriTrack Admin"
         subTitle="subtitle"
         submitter={{
           render: () => (
@@ -53,7 +53,7 @@ export default function LoginPage() {
           onChange={(activeKey) => setPage(activeKey)}
           items={[
             { key: "login", label: "Login" },
-            { key: "register", label: "Register" },
+            // { key: "register", label: "Register" },
           ]}
         />
 
