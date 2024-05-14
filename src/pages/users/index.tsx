@@ -1,12 +1,14 @@
+import { useGetUserBMIRecords } from "@/api/hooks/useGetUserBMIRecords";
 import { useGetUserMedical } from "@/api/hooks/useGetUserMedical";
 import { useGetUserRestriction } from "@/api/hooks/useGetUserRestriction";
 import { useGetUsers } from "@/api/hooks/useGetUsers";
 import { EyeOutlined } from "@ant-design/icons";
 import { Button, Descriptions, Drawer, Table, Tooltip } from "antd";
 import dayjs from "dayjs";
-import { omit } from "lodash-es";
+import { omit, sortBy } from "lodash-es";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Line } from "@ant-design/plots";
 
 export default function UsersPage() {
   const [pagination, setPagination] = useState({
@@ -19,8 +21,8 @@ export default function UsersPage() {
   const { data, isLoading } = useGetUsers({
     queryProps: {
       queryParams: {
-        limit: pagination.limit,
-        page: pagination.page,
+        limit: 10_000,
+        page: 1,
       },
     },
   });
@@ -41,11 +43,21 @@ export default function UsersPage() {
     enabled: !!selectedItem?.id,
   });
 
+  const { data: bmiRecord } = useGetUserBMIRecords();
+
   useEffect(() => {
     if (data) {
       setPagination(omit(data, "results"));
     }
   }, [data]);
+
+  const bmiRecords = sortBy(
+    bmiRecord?.results.filter((item) => item.userId === selectedItem?.id),
+    (item) => item.date
+  ).map((record) => ({
+    ...record,
+    bmi: (record.weight / (Number(selectedItem?.height) / 100) ** 2).toFixed(2),
+  }));
 
   return (
     <>
@@ -86,11 +98,6 @@ export default function UsersPage() {
             title: "Average Score",
             dataIndex: "averageScore",
           },
-          // {
-          //   title: "Status",
-          //   dataIndex: "status",
-          //   render: (status) => <Tag color={StatusColorMap[status]}>{status}</Tag>,
-          // },
           {
             width: 200,
             title: "Updated At",
@@ -205,6 +212,35 @@ export default function UsersPage() {
               children: restriction?.restriction.avoid,
             },
           ]}
+        />
+
+        <Line
+          data={bmiRecords}
+          yField="bmi"
+          xField={(record: { date: string }) => dayjs(record.date).format("DD-MM-YYYY")}
+        />
+
+        <Table
+          columns={[
+            {
+              title: "Weight",
+              dataIndex: "weight",
+            },
+            {
+              title: "Height",
+              render: () => selectedItem?.height,
+            },
+            {
+              title: "BMI",
+              dataIndex: "bmi",
+            },
+            {
+              title: "Date",
+              dataIndex: "date",
+              render: (date) => dayjs(date).format("DD-MM-YYYY"),
+            },
+          ]}
+          dataSource={bmiRecords}
         />
       </Drawer>
     </>

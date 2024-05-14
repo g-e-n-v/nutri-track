@@ -1,42 +1,37 @@
 import { UseQueryOptions, useQuery } from "@tanstack/react-query";
 import client from "@/api/client";
 
-type PathParams = {
-  id: number;
-};
+type PathParams = Record<string, string>;
 type QueryParams = Record<string, string>;
 type Body = Record<string, string>;
 
 type QueryProps = {
-  pathParams: PathParams;
+  pathParams?: PathParams;
   queryParams?: QueryParams;
   body?: Body;
 };
 
 type Response = {
-  id: number;
-  userId: number;
-  conditionId: number;
-  createdAt: string;
-  updatedAt: string;
-  medicalCondition: {
+  results: Array<{
     id: number;
-    name: string;
-    description: string;
-    high: string;
-    low: string;
-    avoid: string;
+    weight: number;
+    date: string;
+    userId: number;
     createdAt: string;
     updatedAt: string;
-  };
+  }>;
+  totalPages: number;
+  page: number;
+  limit: number;
+  totalResults: number;
 };
 
 type Props = {
   queryProps?: QueryProps;
 } & Omit<UseQueryOptions<Response>, "queryKey" | "queryFn">;
 
-const path = "/bmi-records/{id}";
-const queryFn = ({ body, pathParams = { id: NaN }, queryParams = {} }: QueryProps) => {
+const path = "/bmi-records";
+const queryFn = ({ body, pathParams = {}, queryParams = {} }: QueryProps) => {
   const url = Object.entries(pathParams).reduce(
     (url, [key, value]) => url.replace(`{${key}}`, String(value)),
     path
@@ -50,11 +45,9 @@ const queryFn = ({ body, pathParams = { id: NaN }, queryParams = {} }: QueryProp
   }).then((res) => res.data);
 };
 
-const defaultQueryProps: QueryProps = {
-  pathParams: { id: NaN },
-};
+const defaultQueryProps: QueryProps = {};
 
-export function useGetUserMedical({ queryProps = defaultQueryProps, ...props }: Props = {}) {
+export function useGetUserBMIRecords({ queryProps = defaultQueryProps, ...props }: Props = {}) {
   return useQuery({
     ...props,
     queryKey: [path, queryProps],

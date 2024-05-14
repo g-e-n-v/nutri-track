@@ -31,6 +31,11 @@ type Response = {
     email: string;
     name: string;
     role: string;
+    dob?: string;
+    avatar: string;
+    gender: string;
+    height?: number;
+    accountType: string;
     guid: string;
     createdAt: string;
     updatedAt: string;
