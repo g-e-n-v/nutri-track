@@ -13,9 +13,9 @@ const queryClient = new QueryClient({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       throwOnError: (error: any, _query) => {
         const status = error?.response?.status;
-        if (status === 401) {
-          localStorage.removeItem("token");
-        }
+        // if (status === 401) {
+        //   localStorage.removeItem("token");
+        // }
 
         return false;
       },

@@ -171,24 +171,24 @@ export default function UsersPage() {
             {
               span: 2,
               label: "Name",
-              children: medical?.medicalCondition.name,
+              children: medical?.medicalCondition?.name,
             },
             {
               span: 2,
               label: "Description",
-              children: medical?.medicalCondition.description,
+              children: medical?.medicalCondition?.description,
             },
             {
               label: "Low",
-              children: medical?.medicalCondition.low,
+              children: medical?.medicalCondition?.low,
             },
             {
               label: "High",
-              children: medical?.medicalCondition.high,
+              children: medical?.medicalCondition?.high,
             },
             {
               label: "Avoid",
-              children: medical?.medicalCondition.avoid,
+              children: medical?.medicalCondition?.avoid,
             },
           ]}
         />
