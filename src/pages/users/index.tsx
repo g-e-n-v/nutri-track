@@ -21,9 +21,8 @@ import { Link } from "react-router-dom";
 import { Line } from "@ant-design/plots";
 import { useDeleteUser } from "@/api/hooks/useDeleteUser";
 import { useState } from "react";
-import { pick, sortBy } from "lodash-es";
-import { usePostUser } from "@/api/hooks/usePostUser";
-import enUS from "antd/lib/calendar/locale/en_US";
+import { omit, pick, sortBy } from "lodash-es";
+import { useUpdateUser } from "@/api/hooks/useUpdateUser";
 
 export default function UsersPage() {
   const { message } = App.useApp();
@@ -44,10 +43,14 @@ export default function UsersPage() {
     },
   });
 
-  const { mutateAsync: createUser } = usePostUser({
+  const { mutateAsync: updateUser } = useUpdateUser({
     onSuccess: () => {
-      message.success("Created!");
+      message.success("Updated!");
       refetch();
+    },
+    onError: (error) => {
+      console.log(error);
+      message.error((error as any)?.response?.data?.message);
     },
   });
 
@@ -83,7 +86,7 @@ export default function UsersPage() {
 
   return (
     <>
-      <Button
+      {/* <Button
         className="mb-4"
         icon={<PlusCircleOutlined />}
         type="primary"
@@ -93,7 +96,7 @@ export default function UsersPage() {
         }}
       >
         Add user
-      </Button>
+      </Button> */}
       <Table
         loading={isLoading}
         dataSource={data?.results}
@@ -208,34 +211,41 @@ export default function UsersPage() {
           form={form}
           layout="vertical"
           onFinish={(values) => {
-            if (selectedItem) {
-              ///
-            } else {
-              createUser({ body: { ...values, avatar: "https://i.imgur.com/q4zAr6M.png" } });
-            }
+            Object.keys(values).forEach((key) => {
+              // @ts-ignore;
+              if (values[key] === selectedItem?.[key]) {
+                delete values[key];
+              }
+            });
+
+            updateUser({
+              pathParams: { id: String(selectedItem?.id) },
+              body: values,
+            });
+
+            setSelectedItem(undefined);
+            setOpenUpsertDrawer(false);
           }}
         >
-          <Form.Item name="name" label="Name" required>
+          <Form.Item name="name" label="Name">
             <Input />
           </Form.Item>
 
-          <Form.Item name="email" label="Email" required>
+          <Form.Item name="email" label="Email">
             <Input />
           </Form.Item>
 
-          {!selectedItem && (
-            <>
-              <Form.Item name="password" label="Password" required>
-                <Input.Password />
-              </Form.Item>
+          <>
+            <Form.Item name="password" label="Password">
+              <Input.Password />
+            </Form.Item>
 
-              <Form.Item name="dob" label="DOB" required>
-                <DatePicker placeholder="hehe" className="w-full" />
-              </Form.Item>
-            </>
-          )}
+            <Form.Item name="dob" label="DOB">
+              <DatePicker placeholder="hehe" className="w-full" />
+            </Form.Item>
+          </>
 
-          <Form.Item name="role" label="Role" required>
+          {/* <Form.Item name="role" label="Role" required>
             <Select
               options={[
                 { label: "User", value: "USER" },
@@ -243,7 +253,7 @@ export default function UsersPage() {
                 { label: "Admin", value: "ADMIN" },
               ]}
             />
-          </Form.Item>
+          </Form.Item> */}
 
           <Button type="primary" htmlType="submit" className="w-full">
             {selectedItem ? "Update" : "Create"}
