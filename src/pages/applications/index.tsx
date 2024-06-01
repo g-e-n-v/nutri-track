@@ -194,7 +194,7 @@ export default function ApplicationsPage() {
                 <Tooltip title="Approve">
                   <Button
                     type="primary"
-                    disabled={record.status === "APPROVED"}
+                    disabled={record.status === "APPROVED" || record.type !== "REGISTER_EXPERT"}
                     // icon={<DeleteOutlined />}
                     // onClick={() => deleteApplication({ pathParams: { id: record.id } })}
                     icon={<CheckOutlined />}
@@ -210,7 +210,7 @@ export default function ApplicationsPage() {
                   <Button
                     danger
                     type="primary"
-                    disabled={record.status === "REJECTED"}
+                    disabled={record.status === "REJECTED" || record.type !== "REGISTER_EXPERT"}
                     // icon={<DeleteOutlined />}
                     // onClick={() => deleteApplication({ pathParams: { id: record.id } })}
                     icon={<CloseOutlined />}
