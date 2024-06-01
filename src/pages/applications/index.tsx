@@ -7,7 +7,7 @@ import { CheckOutlined, CloseOutlined, EyeOutlined } from "@ant-design/icons";
 import { App, Button, Descriptions, Drawer, Image, Table, Tag, Tooltip } from "antd";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import { omit } from "lodash-es";
+import { omit, sortBy } from "lodash-es";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -100,7 +100,7 @@ export default function ApplicationsPage() {
 
       <Table
         loading={isLoading || isPending}
-        dataSource={displayApplications}
+        dataSource={sortBy(displayApplications, (app) => -app.updatedAt.valueOf())}
         scroll={{ y: "calc(100vh - 360px)", x: 0 }}
         columns={[
           // {
@@ -150,6 +150,26 @@ export default function ApplicationsPage() {
             dataIndex: "note",
           },
           {
+            width: 170,
+            title: "Type",
+            dataIndex: "type",
+            filters: [
+              {
+                text: "UPDATE_DIET",
+                value: "UPDATE_DIET",
+              },
+              {
+                text: "CREATE_DIET",
+                value: "CREATE_DIET",
+              },
+              {
+                text: "REGISTER_EXPERT",
+                value: "REGISTER_EXPERT",
+              },
+            ],
+            onFilter: (value, record) => record.type === value,
+          },
+          {
             width: 100,
             title: "Status",
             dataIndex: "status",
@@ -159,7 +179,7 @@ export default function ApplicationsPage() {
             width: 200,
             title: "Updated At",
             dataIndex: "updatedAt",
-            render: (updatedAt) => dayjs(updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+            render: (updatedAt) => dayjs(updatedAt).format("HH:mm DD/MM/YYYY"),
           },
           {
             fixed: "right",
