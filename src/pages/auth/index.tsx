@@ -6,6 +6,7 @@ import { App, Button, Form, Tabs } from "antd";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
+import bg from "../../assets/bg.jpeg";
 
 export default function LoginPage() {
   const [_user, setUser] = useUserStore();
@@ -15,8 +16,6 @@ export default function LoginPage() {
 
   const [form] = Form.useForm();
   const { message } = App.useApp();
-
-  const [page, setPage] = useState("login");
 
   const { mutateAsync: apiLogin } = useApiLogin();
 
@@ -34,80 +33,48 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <LoginForm
-        form={form}
-        title="NutriTrack Admin"
-        subTitle="subtitle"
-        submitter={{
-          render: () => (
-            <Button className="w-full" type="primary" onClick={handleSubmit}>
-              Login
+    <div
+      style={{ backgroundImage: `url(${bg})` }}
+      className="bg-cover min-h-screen flex justify-center items-center"
+    >
+      <div className="w-max bg-white rounded-lg overflow-hidden">
+        <LoginForm
+          form={form}
+          title={<div className="pb-8 text-2xl">NutriTrack Admin</div>}
+          submitter={{
+            render: () => (
+              <Button className="w-full" type="primary" onClick={handleSubmit}>
+                Login
+              </Button>
+            ),
+          }}
+        >
+          <ProFormText
+            name="email"
+            fieldProps={{
+              size: "large",
+              prefix: <UserOutlined className={"prefixIcon"} />,
+            }}
+            placeholder={"Email"}
+            required
+          />
+          <ProFormText.Password
+            name="password"
+            fieldProps={{
+              size: "large",
+              prefix: <LockOutlined className={"prefixIcon"} />,
+            }}
+            placeholder={"Password"}
+            required
+          />
+
+          <div className="mb-4 text-right">
+            <Button type="link" className="p-0">
+              <Link to={"/forgot-password"}>Forgot Password?</Link>
             </Button>
-          ),
-        }}
-      >
-        <Tabs
-          centered
-          activeKey={page}
-          onChange={(activeKey) => setPage(activeKey)}
-          items={[
-            { key: "login", label: "Login" },
-            // { key: "register", label: "Register" },
-          ]}
-        />
-
-        {page === "login" && (
-          <>
-            <ProFormText
-              name="email"
-              fieldProps={{
-                size: "large",
-                prefix: <UserOutlined className={"prefixIcon"} />,
-              }}
-              placeholder={"Email"}
-              required
-            />
-            <ProFormText.Password
-              name="password"
-              fieldProps={{
-                size: "large",
-                prefix: <LockOutlined className={"prefixIcon"} />,
-              }}
-              placeholder={"Password"}
-              required
-            />
-          </>
-        )}
-
-        {page === "register" && (
-          <>
-            <ProFormText
-              name="username"
-              fieldProps={{
-                size: "large",
-                prefix: <UserOutlined className={"prefixIcon"} />,
-              }}
-              placeholder={"Username"}
-              required
-            />
-            <ProFormText.Password
-              name="password"
-              fieldProps={{
-                size: "large",
-                prefix: <LockOutlined className={"prefixIcon"} />,
-              }}
-              placeholder={"Password"}
-              required
-            />
-          </>
-        )}
-        <div className="mb-4 text-right">
-          <Button type="link" className="p-0">
-            <Link to={"/forgot-password"}>Forgot Password?</Link>
-          </Button>
-        </div>
-      </LoginForm>
+          </div>
+        </LoginForm>
+      </div>
     </div>
   );
 }

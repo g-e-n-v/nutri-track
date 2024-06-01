@@ -2,6 +2,7 @@ import { Routes } from "@generouted/react-router/lazy";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { App, ConfigProvider, Empty } from "antd";
 import { createRoot } from "react-dom/client";
+import enUS from "antd/locale/en_US";
 
 import "@/styles/global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -25,7 +26,15 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
-    <ConfigProvider renderEmpty={() => <Empty description="No data" />}>
+    <ConfigProvider
+      locale={enUS}
+      renderEmpty={() => <Empty description="No data" />}
+      theme={{
+        token: {
+          colorPrimary: "#57623a",
+        },
+      }}
+    >
       <App>
         <Routes />
       </App>

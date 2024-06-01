@@ -14,7 +14,7 @@ type MutationProps = {
   body?: Body;
 };
 
-type Response = {};
+type Response = Record<string, string>;
 
 type Props = Omit<UseMutationOptions<Response, Error, MutationProps>, "mutationFn">;
 

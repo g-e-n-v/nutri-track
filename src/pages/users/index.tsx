@@ -2,23 +2,33 @@ import { useGetUserBMIRecords } from "@/api/hooks/useGetUserBMIRecords";
 import { useGetUserMedical } from "@/api/hooks/useGetUserMedical";
 import { useGetUserRestriction } from "@/api/hooks/useGetUserRestriction";
 import { useGetUsers } from "@/api/hooks/useGetUsers";
-import { EyeOutlined } from "@ant-design/icons";
-import { Button, Descriptions, Drawer, Table, Tooltip } from "antd";
+import { DeleteOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import {
+  App,
+  Button,
+  DatePicker,
+  Descriptions,
+  Drawer,
+  Form,
+  Image,
+  Input,
+  Select,
+  Table,
+  Tooltip,
+} from "antd";
 import dayjs from "dayjs";
-import { omit, sortBy } from "lodash-es";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Line } from "@ant-design/plots";
+import { useDeleteUser } from "@/api/hooks/useDeleteUser";
+import { useState } from "react";
+import { pick, sortBy } from "lodash-es";
+import { usePostUser } from "@/api/hooks/usePostUser";
+import enUS from "antd/lib/calendar/locale/en_US";
 
 export default function UsersPage() {
-  const [pagination, setPagination] = useState({
-    limit: 10_000,
-    page: 1,
-    totalPages: NaN,
-    totalResults: NaN,
-  });
+  const { message } = App.useApp();
 
-  const { data, isLoading } = useGetUsers({
+  const { data, isLoading, refetch } = useGetUsers({
     queryProps: {
       queryParams: {
         limit: 10_000,
@@ -27,6 +37,24 @@ export default function UsersPage() {
     },
   });
 
+  const { mutateAsync: deleteUser } = useDeleteUser({
+    onSuccess: () => {
+      message.success("Deleted!");
+      refetch();
+    },
+  });
+
+  const { mutateAsync: createUser } = usePostUser({
+    onSuccess: () => {
+      message.success("Created!");
+      refetch();
+    },
+  });
+
+  const [form] = Form.useForm();
+
+  const [openInfoDrawer, setOpenInfoDrawer] = useState(false);
+  const [openUpsertDrawer, setOpenUpsertDrawer] = useState(false);
   const [selectedItem, setSelectedItem] = useState<NonNullable<typeof data>["results"][number]>();
 
   const { data: medical } = useGetUserMedical({
@@ -45,12 +73,6 @@ export default function UsersPage() {
 
   const { data: bmiRecord } = useGetUserBMIRecords();
 
-  useEffect(() => {
-    if (data) {
-      setPagination(omit(data, "results"));
-    }
-  }, [data]);
-
   const bmiRecords = sortBy(
     bmiRecord?.results.filter((item) => item.userId === selectedItem?.id),
     (item) => item.date
@@ -61,10 +83,21 @@ export default function UsersPage() {
 
   return (
     <>
+      <Button
+        className="mb-4"
+        icon={<PlusCircleOutlined />}
+        type="primary"
+        onClick={() => {
+          setOpenUpsertDrawer(true);
+          form.resetFields();
+        }}
+      >
+        Add user
+      </Button>
       <Table
         loading={isLoading}
         dataSource={data?.results}
-        scroll={{ y: "calc(100vh - 300px)", x: 0 }}
+        scroll={{ y: "calc(100vh - 360px)", x: 0 }}
         columns={[
           // {
           //   width: 60,
@@ -77,6 +110,19 @@ export default function UsersPage() {
             title: "ID",
             dataIndex: "id",
             render: (id: string) => <Link to={`/applications/${id}`}>{id}</Link>,
+          },
+          {
+            width: 100,
+            title: "Avatar",
+            dataIndex: "avatar",
+            render: (avt) => (
+              <Image
+                src={avt}
+                alt="image"
+                className="size-20 rounded-lg overflow-hidden"
+                preview={false}
+              />
+            ),
           },
           {
             width: 150,
@@ -105,34 +151,114 @@ export default function UsersPage() {
             render: (updatedAt) => dayjs(updatedAt).format("YYYY-MM-DD HH:mm:ss"),
           },
           {
-            width: 100,
+            width: 120,
             fixed: "right",
             title: "Action",
             render: (_, record) => (
-              <>
+              <div className="flex items-center gap-2">
                 <Tooltip title="View Detail">
-                  <Button onClick={() => setSelectedItem(record)} icon={<EyeOutlined />} />
+                  <Button
+                    onClick={() => {
+                      setSelectedItem(record);
+                      setOpenInfoDrawer(true);
+                    }}
+                    icon={<EyeOutlined />}
+                  />
                 </Tooltip>
-                {/* <Tooltip title="Delete">
+                <Tooltip title="Edit">
+                  <Button
+                    type="primary"
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setOpenUpsertDrawer(true);
+                      setSelectedItem(record);
+                      form.setFieldsValue(pick(record, ["email", "name", "role"]));
+                    }}
+                  />
+                </Tooltip>
+                <Tooltip title="Delete">
                   <Button
                     danger
                     type="primary"
                     icon={<DeleteOutlined />}
-                    // onClick={() => deleteApplication({ pathParams: { id: record.id } })}
+                    onClick={() => deleteUser({ pathParams: { id: record.id } })}
                   />
-                </Tooltip> */}
-              </>
+                </Tooltip>
+              </div>
             ),
           },
         ]}
         pagination={{
           pageSize: 10,
-          total: pagination.totalResults,
+          total: data?.results.length,
         }}
         rowKey={(row) => row.id}
       />
 
-      <Drawer open={!!selectedItem} onClose={() => setSelectedItem(undefined)} width={700}>
+      <Drawer
+        open={openUpsertDrawer}
+        onClose={() => {
+          setOpenUpsertDrawer(false);
+          setSelectedItem(undefined);
+        }}
+        destroyOnClose
+        width={500}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={(values) => {
+            if (selectedItem) {
+              ///
+            } else {
+              createUser({ body: { ...values, avatar: "https://i.imgur.com/q4zAr6M.png" } });
+            }
+          }}
+        >
+          <Form.Item name="name" label="Name" required>
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="email" label="Email" required>
+            <Input />
+          </Form.Item>
+
+          {!selectedItem && (
+            <>
+              <Form.Item name="password" label="Password" required>
+                <Input.Password />
+              </Form.Item>
+
+              <Form.Item name="dob" label="DOB" required>
+                <DatePicker placeholder="hehe" className="w-full" />
+              </Form.Item>
+            </>
+          )}
+
+          <Form.Item name="role" label="Role" required>
+            <Select
+              options={[
+                { label: "User", value: "USER" },
+                // { label: "Expert", value: "EXPERT" },
+                { label: "Admin", value: "ADMIN" },
+              ]}
+            />
+          </Form.Item>
+
+          <Button type="primary" htmlType="submit" className="w-full">
+            {selectedItem ? "Update" : "Create"}
+          </Button>
+        </Form>
+      </Drawer>
+
+      <Drawer
+        open={openInfoDrawer}
+        onClose={() => {
+          setOpenInfoDrawer(false);
+          setSelectedItem(undefined);
+        }}
+        width={700}
+      >
         <Descriptions
           title={<div className="flex items-center gap-2">User Detail</div>}
           layout="vertical"

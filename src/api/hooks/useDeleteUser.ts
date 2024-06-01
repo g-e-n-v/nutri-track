@@ -16,7 +16,7 @@ type Response = Record<string, string>;
 
 type Props = Omit<UseMutationOptions<Response, Error, MutationProps>, "mutationFn">;
 
-const path = "/applications/{id}";
+const path = "/users/{id}";
 const mutationFn = ({ body, pathParams, queryParams = {} }: MutationProps) => {
   const url = Object.entries(pathParams).reduce(
     (url, [key, value]) => url.replace(`{${key}}`, String(value)),
@@ -31,7 +31,7 @@ const mutationFn = ({ body, pathParams, queryParams = {} }: MutationProps) => {
   }).then((res) => res.data);
 };
 
-export function useDeleteApplication(props: Props = {}) {
+export function useDeleteUser(props: Props = {}) {
   return useMutation({
     ...props,
     mutationFn,

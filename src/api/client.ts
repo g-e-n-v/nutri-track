@@ -3,12 +3,12 @@ import { redirect } from "react-router-dom";
 
 const client = axios.create({
   baseURL: "http://14.225.211.111:3000/v1/",
+  // withCredentials: true,
 });
 
 client.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    console.log(token);
     token && (config.headers.Authorization = `Bearer ${token.slice(1, -1)}`);
 
     return config;
