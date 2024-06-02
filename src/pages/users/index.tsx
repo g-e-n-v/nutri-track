@@ -49,7 +49,6 @@ export default function UsersPage() {
       refetch();
     },
     onError: (error) => {
-      console.log(error);
       message.error((error as any)?.response?.data?.message);
     },
   });

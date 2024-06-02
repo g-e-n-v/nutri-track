@@ -31,7 +31,7 @@ createRoot(document.getElementById("root")!).render(
       renderEmpty={() => <Empty description="No data" />}
       theme={{
         token: {
-          colorPrimary: "#57623a",
+          colorPrimary: "#87965b",
         },
       }}
     >
