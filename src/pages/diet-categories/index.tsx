@@ -36,6 +36,7 @@ export default function DietCategoriesPage() {
       message.success("Create successfully!");
       refetch();
       setOpenUpsertDrawer(false);
+      form.resetFields();
     },
     onError: (error) => {
       message.error((error as any)?.response?.data?.message);
